@@ -11,6 +11,8 @@ import MapKit
 
 class ViewController: UIViewController {
 
+    fileprivate let MARKER_ID = "Marker Id"
+    
     fileprivate var mapView: MKMapView = {
         let map = MKMapView()
         map.translatesAutoresizingMaskIntoConstraints = false
@@ -105,5 +107,11 @@ extension ViewController: MKMapViewDelegate {
         let region = MKCoordinateRegion(center: mapView.userLocation.coordinate, latitudinalMeters: 10, longitudinalMeters: 10)
         mapView.setRegion(region, animated: true)
         addAnnotationMap()
+    }
+    
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        if annotation is MKUserLocation { return nil }
+        let marker = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: MARKER_ID)
+        return marker
     }
 }

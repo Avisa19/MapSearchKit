@@ -57,6 +57,7 @@ class ViewController: UIViewController {
         segmentedControl.heightAnchor.constraint(equalToConstant: 50).isActive = true
         segmentedControl.widthAnchor.constraint(equalToConstant: 300).isActive = true
         
+        // location Manager
         locationManager.delegate = self
         mapView.delegate = self
         locationManager.requestWhenInUseAuthorization()
@@ -66,6 +67,16 @@ class ViewController: UIViewController {
         mapView.showsUserLocation = true
         
         segmentedControl.addTarget(self, action: #selector(handleSwitch), for: .valueChanged)
+        
+        /* addAnnotationMap() */
+    }
+    
+    fileprivate func addAnnotationMap() {
+        let annotation = MKPointAnnotation()
+        annotation.coordinate = mapView.userLocation.coordinate
+        annotation.title = "AvisaCodes"
+        annotation.subtitle = "apple lover iOS concepts"
+        mapView.addAnnotation(annotation)
     }
 
 
@@ -89,4 +100,10 @@ extension ViewController: CLLocationManagerDelegate {
 
 extension ViewController: MKMapViewDelegate {
     
+    func mapView(_ mapView: MKMapView, didUpdate userLocation: MKUserLocation) {
+        
+        let region = MKCoordinateRegion(center: mapView.userLocation.coordinate, latitudinalMeters: 10, longitudinalMeters: 10)
+        mapView.setRegion(region, animated: true)
+        addAnnotationMap()
+    }
 }

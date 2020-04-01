@@ -112,6 +112,12 @@ extension ViewController: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         if annotation is MKUserLocation { return nil }
         let marker = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: MARKER_ID)
+        marker.glyphText = "Hello"
+        marker.canShowCallout = true
+        marker.leftCalloutAccessoryView = UIImageView(image: #imageLiteral(resourceName: "baseline_explore_black_18dp"))
+        marker.rightCalloutAccessoryView = UIImageView(image: #imageLiteral(resourceName: "baseline_navigate_next_black_18dp"))
+       /* marker.glyphImage = #imageLiteral(resourceName: "baseline_explore_black_18dp") */
+        marker.tintColor = .systemBlue
         return marker
     }
 }

@@ -71,9 +71,12 @@ class ViewController: UIViewController {
             guard let placemarks = placemarks else { return }
             let placemark = placemarks.first
             let coordinates = placemark?.location?.coordinate ?? CLLocationCoordinate2D(latitude: 20, longitude: 20)
-            let newAnnotation = MKPointAnnotation()
+            let destinationInfo = MKPlacemark(coordinate: coordinates)
+            let mapItem = MKMapItem(placemark: destinationInfo)
+           /* let newAnnotation = MKPointAnnotation()
             newAnnotation.coordinate = coordinates
-            self.mapView.addAnnotation(newAnnotation)
+            self.mapView.addAnnotation(newAnnotation) */
+            MKMapItem.openMaps(with: [mapItem], launchOptions: nil)
         }
     }
     
@@ -156,6 +159,13 @@ extension ViewController: CLLocationManagerDelegate {
 
 extension ViewController: MKMapViewDelegate {
     
+    func mapView(_ mapView: MKMapView, clusterAnnotationForMemberAnnotations memberAnnotations: [MKAnnotation]) -> MKClusterAnnotation {
+        let cluster = MKClusterAnnotation(memberAnnotations: memberAnnotations)
+        cluster.title = "Coffee, Games, Clothes"
+        cluster.subtitle = "Cool places to see."
+        return cluster
+    }
+    
     fileprivate func setupMapSnapShot(annoation: MKAnnotationView) {
         
         let option = MKMapSnapshotter.Options()
@@ -191,6 +201,7 @@ extension ViewController: MKMapViewDelegate {
         let marker = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: MARKER_ID)
         marker.glyphText = "Hello"
         marker.canShowCallout = true
+        marker.clusteringIdentifier = "Coffee Identifier"
         marker.leftCalloutAccessoryView = UIImageView(image: #imageLiteral(resourceName: "baseline_explore_black_18dp"))
         marker.rightCalloutAccessoryView = UIImageView(image: #imageLiteral(resourceName: "baseline_navigate_next_black_18dp"))
        /* marker.glyphImage = #imageLiteral(resourceName: "baseline_explore_black_18dp") */

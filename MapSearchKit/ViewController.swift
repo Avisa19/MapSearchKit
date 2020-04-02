@@ -29,6 +29,36 @@ class ViewController: UIViewController {
         return sc
     }()
     
+    fileprivate var textField = UITextField()
+    
+    fileprivate lazy var pinAddress: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Pin Address", for: .normal)
+        button.setTitleColor(UIColor.systemBlue.withAlphaComponent(0.5), for: .normal)
+        button.layer.borderColor = UIColor.systemBlue.withAlphaComponent(0.5).cgColor
+        button.layer.borderWidth = 0.5
+        button.layer.masksToBounds = true
+        button.layer.cornerRadius = 5
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(handlePinAddress), for: .touchUpInside)
+        return button
+    }()
+    
+    @objc fileprivate func handlePinAddress() {
+        let alertController = UIAlertController(title: "Enter Address", message: "We need your address for GeoCoder", preferredStyle: .alert)
+        
+        alertController.addTextField { (tf) in
+            
+        }
+        let saveButton = UIAlertAction(title: "Pin Address", style: .default) { (_) in
+            if let tf = alertController.textFields?.first {
+                print(tf.text)
+            }
+        }
+        alertController.addAction(saveButton)
+        present(alertController, animated: true, completion: nil)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -53,10 +83,16 @@ class ViewController: UIViewController {
         bg.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         bg.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
         
+        bg.addSubview(pinAddress)
+        
+        pinAddress.topAnchor.constraint(equalTo: bg.topAnchor, constant: 5).isActive = true
+        pinAddress.centerXAnchor.constraint(equalTo: bg.centerXAnchor).isActive = true
+        pinAddress.widthAnchor.constraint(equalToConstant: 125).isActive = true
+        pinAddress.heightAnchor.constraint(equalToConstant: 25).isActive = true
         
         segmentedControl.centerXAnchor.constraint(equalTo: bg.centerXAnchor).isActive = true
         segmentedControl.centerYAnchor.constraint(equalTo: bg.centerYAnchor).isActive = true
-        segmentedControl.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        segmentedControl.heightAnchor.constraint(equalToConstant: 30).isActive = true
         segmentedControl.widthAnchor.constraint(equalToConstant: 300).isActive = true
         
         // location Manager
@@ -102,6 +138,29 @@ extension ViewController: CLLocationManagerDelegate {
 
 extension ViewController: MKMapViewDelegate {
     
+    fileprivate func setupMapSnapShot(annoation: MKAnnotationView) {
+        
+        let option = MKMapSnapshotter.Options()
+        option.size = .init(width: 200, height: 200)
+        option.mapType = .satelliteFlyover
+        let center = annoation.annotation?.coordinate ?? CLLocationCoordinate2D(latitude: 20, longitude: 20)
+        option.camera = MKMapCamera(lookingAtCenter: center, fromDistance: 150, pitch: 50, heading: 0)
+        
+        let snapShotter = MKMapSnapshotter(options: option)
+        snapShotter.start { (snapshot, err) in
+            if let err = err {
+                print("Failed to take a snapshot: \(err.localizedDescription)")
+                return
+            }
+            
+            if let snapshot = snapshot {
+                let imageView = UIImageView(frame: .init(x: 50, y: 50, width: 100, height: 100))
+                imageView.image = snapshot.image
+                annoation.detailCalloutAccessoryView = imageView
+            }
+        }
+    }
+    
     func mapView(_ mapView: MKMapView, didUpdate userLocation: MKUserLocation) {
         
         let region = MKCoordinateRegion(center: mapView.userLocation.coordinate, latitudinalMeters: 10, longitudinalMeters: 10)
@@ -118,6 +177,7 @@ extension ViewController: MKMapViewDelegate {
         marker.rightCalloutAccessoryView = UIImageView(image: #imageLiteral(resourceName: "baseline_navigate_next_black_18dp"))
        /* marker.glyphImage = #imageLiteral(resourceName: "baseline_explore_black_18dp") */
         marker.tintColor = .systemBlue
+        setupMapSnapShot(annoation: marker)
         return marker
     }
 }

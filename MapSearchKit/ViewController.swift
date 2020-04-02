@@ -70,13 +70,47 @@ class ViewController: UIViewController {
             
             guard let placemarks = placemarks else { return }
             let placemark = placemarks.first
+            
+            // MARK:- Get Direction
             let coordinates = placemark?.location?.coordinate ?? CLLocationCoordinate2D(latitude: 20, longitude: 20)
             let destinationInfo = MKPlacemark(coordinate: coordinates)
+            let startingPoint = MKMapItem.forCurrentLocation()
+            let destinationPoint = MKMapItem(placemark: destinationInfo)
+            
+            let directionReq = MKDirections.Request()
+            directionReq.transportType = .automobile
+            directionReq.source = startingPoint
+            directionReq.destination = destinationPoint
+            
+            let directions = MKDirections(request: directionReq)
+            directions.calculate { (response, err) in
+                if let err = err {
+                    print("Failed to calculate the route: \(err.localizedDescription)")
+                    return
+                }
+                
+                if let response = response {
+                    guard let route = response.routes.first else { return }
+                    if !route.steps.isEmpty {
+                        for step in route.steps {
+                            print("next step: \(step.instructions)")
+                        }
+                    }
+                }
+            }
+            
+            // MARK:- open in map app
+            
+          /*  let coordinates = placemark?.location?.coordinate ?? CLLocationCoordinate2D(latitude: 20, longitude: 20)
+            let destinationInfo = MKPlacemark(coordinate: coordinates)
             let mapItem = MKMapItem(placemark: destinationInfo)
+            MKMapItem.openMaps(with: [mapItem], launchOptions: nil) */
+            
+            // MARK:- pin Address to map
+            
            /* let newAnnotation = MKPointAnnotation()
             newAnnotation.coordinate = coordinates
             self.mapView.addAnnotation(newAnnotation) */
-            MKMapItem.openMaps(with: [mapItem], launchOptions: nil)
         }
     }
     

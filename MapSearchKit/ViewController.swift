@@ -96,6 +96,7 @@ class ViewController: UIViewController {
                             print("next step: \(step.instructions)")
                         }
                     }
+                    self.mapView.addOverlay(route.polyline, level: .aboveLabels)
                 }
             }
             
@@ -192,6 +193,13 @@ extension ViewController: CLLocationManagerDelegate {
 }
 
 extension ViewController: MKMapViewDelegate {
+    
+    func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
+        let renderer = MKPolylineRenderer(overlay: overlay)
+        renderer.strokeColor = UIColor.systemBlue.withAlphaComponent(0.8)
+        renderer.lineWidth = 4
+        return renderer
+    }
     
     func mapView(_ mapView: MKMapView, clusterAnnotationForMemberAnnotations memberAnnotations: [MKAnnotation]) -> MKClusterAnnotation {
         let cluster = MKClusterAnnotation(memberAnnotations: memberAnnotations)

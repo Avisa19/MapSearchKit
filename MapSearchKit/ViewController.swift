@@ -31,7 +31,7 @@ class ViewController: UIViewController {
     
     fileprivate var textField = UITextField()
     
-    fileprivate lazy var pinAddress: UIButton = {
+    fileprivate let pinAddress: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Pin Address", for: .normal)
         button.setTitleColor(UIColor.systemBlue.withAlphaComponent(0.5), for: .normal)
@@ -52,11 +52,29 @@ class ViewController: UIViewController {
         }
         let saveButton = UIAlertAction(title: "Pin Address", style: .default) { (_) in
             if let tf = alertController.textFields?.first {
-                print(tf.text)
+                guard let addressText = tf.text else { return }
+                self.geocodeAndAnnotate(addressText)
             }
         }
         alertController.addAction(saveButton)
         present(alertController, animated: true, completion: nil)
+    }
+    
+    fileprivate func geocodeAndAnnotate(_ addressText: String) {
+        let geocoder = CLGeocoder()
+        geocoder.geocodeAddressString(addressText) { (placemarks, err) in
+            if let err = err {
+                print("Failed to find the address: \(err.localizedDescription)")
+                return
+            }
+            
+            guard let placemarks = placemarks else { return }
+            let placemark = placemarks.first
+            let coordinates = placemark?.location?.coordinate ?? CLLocationCoordinate2D(latitude: 20, longitude: 20)
+            let newAnnotation = MKPointAnnotation()
+            newAnnotation.coordinate = coordinates
+            self.mapView.addAnnotation(newAnnotation)
+        }
     }
     
     override func viewDidLoad() {
